@@ -3,7 +3,7 @@ from .models import Card, User, Like
 
 
 class CardAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'likes_list', 'createdAt')
+    list_display = ('pk', 'name', 'likes_list', 'owner', 'createdAt')
 
     def likes_list(self, obj):
         return "\n".join([a.name for a in obj.likes.all()])
