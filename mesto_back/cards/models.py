@@ -1,16 +1,23 @@
+# from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import AbstractBaseUser
+
 from django.db import models
 
 
-class User(models.Model):
+#
+# User = get_user_model()
 
-    name = models.CharField(max_length=64)
-    about = models.CharField(max_length=64)
+
+class User(AbstractUser):
+    name = models.CharField(max_length=64, default="Жак-Ив-Кусто")
+    about = models.CharField(max_length=64, default="Исследователь")
     avatar = models.CharField(max_length=64, blank=True, null=True)
-    cohort = models.CharField(max_length=64, blank=True, null=True)
-    _id = models.AutoField(primary_key=True)
+    cohort = models.CharField(max_length=64, blank=True, default="cohort-45")
+    # _id = models.AutoField(primary_key=True, blank=False)
 
     def __str__(self):
-        return self.name
+        return f'Имя юзера {self.name}'
 
 
 class Card(models.Model):
@@ -18,7 +25,7 @@ class Card(models.Model):
                                    through='Like')
     _id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=64)
-    link = models.CharField(max_length=64)
+    link = models.CharField(max_length=150)
     owner = models.ForeignKey(
         User, related_name='cards', on_delete=models.CASCADE)
     createdAt = models.DateTimeField(
@@ -36,6 +43,9 @@ class Like(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE
     )
+
+    class Meta:
+        unique_together = ("card", "user")
 
     def __str__(self):
         return f'{self.card} {self.user}'

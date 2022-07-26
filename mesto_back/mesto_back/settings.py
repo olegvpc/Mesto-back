@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,11 @@ SECRET_KEY = 'django-insecure-@a5f$b-y&e63p3+&ht$sfqfs0fpu45y%n(+n3-e0*lrm*44p^7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'http://olegvpc.pythonanywhere.com'
+]
 
 
 # Application definition
@@ -37,12 +43,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
+    'rest_framework',
+    'corsheaders',
+    # 'rest_framework.authtoken',
+    'djoser',
+    # 'users.apps.UsersConfig',
     'cards.apps.CardsConfig',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -112,13 +126,84 @@ USE_I18N = True
 
 USE_TZ = True
 
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES':[
+#         'rest_framework.permissions.IsAdminUser',
+#     ],
+#     'PAGE_SIZE':10
+# }
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
+#
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.TokenAuthentication',
+#     ]
+# }
+# POST запрос на http://127.0.0.1:8000/api-token-auth/
+#
+# {
+#     "username": "oleg",
+#     "password": "12345poiuy"
+# }
+# ответ
+# {
+#     "token": "26d52d2a673416f7a624ef7a10a2aa62aa85f383"
+# }
+#
+# Более продвитнутый токен -JSON Web Token
+# можно СОЗДАВАТЬ новых пользователей чере
+# POST запрос на http://127.0.0.1:8000/auth/users/
+# ответ {
+#     "email": "",
+#     "username": "oleg-1",
+#     "id": 4
+# }
+
+# далее получаем новый Token - Bearer для пользователя
+# по POST запросу
+# http://127.0.0.1:8000/auth/jwt/create/
+# в виде
+# {
+#     "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY1ODQ3NjU2NiwianRpIjoiYzFmNTY4MjQ3M2Q4NGE4MzlhZWZmYTdmMzQ0MzExZTIiLCJ1c2VyX2lkIjo0fQ.U7fP2I-jyGzTojrZ8Y4ZHWjDDVMMYwCs-ga5h2ObXrk",
+#     "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjY3MDMwMTY2LCJqdGkiOiIwODU3OTQ5OWYwZWI0MmY5YWE1OGNhMTQzZjhmOTZmYyIsInVzZXJfaWQiOjR9.Y9q6nSEh7ihe-IeLbEvPSG6xLZx9RQrdOwPFC32EThk"
+# }
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+#
+
+SIMPLE_JWT = {
+    # Устанавливаем срок жизни токена
+   'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
+   'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'cards.User'
+# при настройке AbstractBaseUser
+# AUTH_USER_MODEL = 'core.User'
+# AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/v1/.*$'
+
+# APPEND_SLASH = False
